@@ -1,8 +1,4 @@
 /**
- * Created by quanpower on 14-8-30.
- */
-
-/**
  * Copyright 2013 IBM Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +19,7 @@ var nodes = require("./nodes");
 var library = require("./library");
 var comms = require("./comms");
 var log = require("./log");
+var util = require("./util");
 var fs = require("fs");
 var settings = null;
 var credentials = require("./nodes/credentials");
@@ -37,14 +34,7 @@ var RED = {
 
     init: function(httpServer,userSettings) {
         settings = userSettings;
-
-        var p = require(path.join(process.env.NODE_RED_HOME,"package.json"));
-        if (fs.existsSync(path.join(process.env.NODE_RED_HOME,".git"))) {
-            settings.version = p.version+".git";
-        } else {
-            settings.version = p.version;
-        }
-
+        settings.version = this.version();
 
         server.init(httpServer,settings);
         library.init();
@@ -58,7 +48,16 @@ var RED = {
     credentials: credentials,
     events: events,
     log: log,
-    comms:comms
+    comms: comms,
+    util: util,
+    version: function () {
+        var p = require(path.join(process.env.NODE_RED_HOME,"package.json"));
+        if (fs.existsSync(path.join(process.env.NODE_RED_HOME,".git"))) {
+            return p.version+".git";
+        } else {
+            return p.version;
+        }
+    }
 };
 
 RED.__defineGetter__("app", function() { console.log("Deprecated use of RED.app - use RED.httpAdmin instead"); return server.app });
